@@ -1,7 +1,7 @@
-use mysql::{Pool, Opts, PooledConn, prelude::Queryable};
+use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
+use mysql::{prelude::Queryable, Opts, Pool, PooledConn};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder, middleware};
 
 mod dto;
 mod handlers;
@@ -17,7 +17,6 @@ static POOL: Lazy<Mutex<Pool>> = Lazy::new(|| {
     Mutex::new(Pool::new(Opts::from_url(&*url).unwrap()).unwrap())
 });
 
-
 pub fn get_conn() -> PooledConn {
     POOL.lock().unwrap().get_conn().unwrap()
 }
@@ -30,17 +29,21 @@ async fn ping() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     install_db();
-    HttpServer::new(|| 
+    HttpServer::new(|| {
         App::new()
-        .wrap(middleware::Logger::default())
-        .service(ping)
-        .route("/clients",web::get().to(handlers::get_clients))
-        .route("/client/{id}", web::get().to(handlers::get_client_by_id))
-        .route("/client", web::post().to(handlers::create_client))
-    )
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+            .wrap(middleware::Logger::default())
+            .service(ping)
+            .route("/clients", web::get().to(handlers::get_clients))
+            .route("/client/{id}", web::get().to(handlers::get_client_by_id))
+            .route("/client", web::post().to(handlers::create_client))
+            .route(
+                "/clients/find",
+                web::get().to(handlers::find_clients_by_filter),
+            )
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
 
 fn install_db() {
