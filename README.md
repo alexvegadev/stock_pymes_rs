@@ -2,13 +2,13 @@
 
 API Restful to make stock control, made with Rust and MySQL.
 
+[![Rust CI/CD](https://github.com/alexvegadev/stock_pymes_rs/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/alexvegadev/stock_pymes_rs/actions/workflows/ci.yml)
   
 
 # Libraries used:
 - Actix Web
 - Serde & Serde JSON
 - dotenv
-- once_cell  (asynchronous)
 - chrono (dates)
 
 ## This project is based in my implementation in java.
