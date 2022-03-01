@@ -34,3 +34,10 @@ pub struct ApiError {
     pub status_code: u16,
     pub error: String
 }
+
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ApiOk {
+    pub message: String,
+}
+
