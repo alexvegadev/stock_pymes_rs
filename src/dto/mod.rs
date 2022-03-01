@@ -7,7 +7,7 @@ pub struct Client {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Product {
     pub id: Option<u64>,
     pub bar_code: Option<String>,
@@ -19,7 +19,7 @@ pub struct Product {
     pub quantity: u32
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Sale {
     pub id: Option<u64>,
     pub client_id: Option<i64>,
@@ -34,3 +34,10 @@ pub struct ApiError {
     pub status_code: u16,
     pub error: String
 }
+
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ApiOk {
+    pub message: String,
+}
+

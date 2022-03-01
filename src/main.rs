@@ -1,26 +1,10 @@
-use mysql::{Pool, Opts, PooledConn, prelude::Queryable};
-use once_cell::sync::Lazy;
-use std::sync::Mutex;
-use actix_web::{get, web, App, HttpResponse, HttpServer, Responder, middleware};
+use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 
 mod dto;
 mod handlers;
-
-const CREATE_TABLE_CLIENT: &str = "CREATE TABLE if not exists client(id int NOT NULL AUTO_INCREMENT, name varchar(150), PRIMARY KEY(id))";
-const CREATE_TABLE_PRODUCT: &str = "CREATE TABLE if not exists product(id int NOT NULL AUTO_INCREMENT, bar_code varchar(100), name varchar(100), category varchar(50), image varchar(150), base_price decimal(18, 2), real_price decimal(18, 2),  quantity int, PRIMARY KEY(id))";
-const CREATE_TABLE_SALE: &str = "CREATE TABLE if not exists sale(id int NOT NULL AUTO_INCREMENT, client_id int, product_id int, date_purchase date, PRIMARY KEY(id))";
-
-static POOL: Lazy<Mutex<Pool>> = Lazy::new(|| {
-    dotenv::dotenv().ok();
-    let url = dotenv::var("DATABASE_URL").unwrap_or(String::from(""));
-
-    Mutex::new(Pool::new(Opts::from_url(&*url).unwrap()).unwrap())
-});
+mod db;
 
 
-pub fn get_conn() -> PooledConn {
-    POOL.lock().unwrap().get_conn().unwrap()
-}
 
 #[get("/ping")]
 async fn ping() -> impl Responder {
@@ -29,23 +13,26 @@ async fn ping() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    install_db();
-    HttpServer::new(|| 
+    let db_config : db::DatabaseConfig = db::DatabaseConfig::new();
+    db_config.install_db();
+    let pool = web::Data::new(db_config.get_pool());
+    HttpServer::new(move || {
         App::new()
-        .wrap(middleware::Logger::default())
-        .service(ping)
-        .route("/clients",web::get().to(handlers::get_clients))
-        .route("/client/{id}", web::get().to(handlers::get_client_by_id))
-        .route("/client", web::post().to(handlers::create_client))
-    )
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+            .app_data(pool.clone())
+            .wrap(middleware::Logger::default())
+            .service(ping)
+            .service(handlers::client::get_client_by_id)
+            .route("/client", web::put().to(handlers::client::update_client))
+            .route("/clients", web::get().to(handlers::client::get_clients))
+            .route("/client", web::post().to(handlers::client::create_client))
+            .route(
+                "/clients/find",
+                web::get().to(handlers::client::find_clients_by_filter),
+            )
+            .route("/client/{id}", web::delete().to(handlers::client::remove_client))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
 
-fn install_db() {
-    let mut conn = get_conn();
-    conn.query_drop(CREATE_TABLE_CLIENT).unwrap();
-    conn.query_drop(CREATE_TABLE_PRODUCT).unwrap();
-    conn.query_drop(CREATE_TABLE_SALE).unwrap();
-}
