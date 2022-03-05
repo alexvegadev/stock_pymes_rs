@@ -1,33 +1,12 @@
 use actix_web::{error, web, Result, Responder, HttpResponse, get};
 use mysql::{prelude::Queryable, Pool};
-use serde::{Serialize, Deserialize};
 
-use crate::{dto::{Client, ApiOk, ApiError}};
+use crate::{dto::{Client, ApiOk, ApiError}, request::client_filter::{ClientFilter, ClientUpdate, Operator}};
 
 const SELECT_CLIENTS: &str = "SELECT id, name from client";
 const INSERT_CLIENT: &str = "INSERT INTO client(name) VALUES(?)";
 const DELETE_CLIENT: &str = "DELETE FROM client where id=?";
 const UPDATE_CLIENT: &str = "UPDATE client SET {} where id=?";
-
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ClientFilter {
-    id: Option<u32>,
-    name: Option<String>,
-    operator: Option<Operator>
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ClientUpdate {
-    id: Option<u32>,
-    name: Option<String>
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub enum Operator {
-    AND,
-    OR
-}
 
 
 pub async fn get_clients(pool: web::Data<Pool>) -> Result<impl Responder> {
