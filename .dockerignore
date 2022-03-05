@@ -1,0 +1,8 @@
+target
+.github
+Cargo.lock
+docker-compose.yml
+README.md
+stock_pymes_rs.iml
+.gitignore
+.env
