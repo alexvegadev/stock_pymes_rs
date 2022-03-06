@@ -18,4 +18,7 @@ pub fn setup_routes(cfg: &mut web::ServiceConfig) {
     // PRODUCT
     cfg.route("/product", web::get().to(handlers::product::get_products));
     cfg.route("/product", web::put().to(handlers::product::update_product));
+    cfg.route("/product", web::post().to(handlers::product::create_product));
+    cfg.route("/product/{id}", web::delete().to(handlers::product::remove_product));
+    cfg.route("/product/find", web::get().to(handlers::product::find_products_by_filter));
 }

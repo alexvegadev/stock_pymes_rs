@@ -21,7 +21,7 @@ pub struct Product {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Sale {
-    pub id: Option<u64>,
+    pub id: Option<i64>,
     pub client_id: Option<i64>,
     pub product_id: u64,
     pub date_purchase: DateTime<Local>

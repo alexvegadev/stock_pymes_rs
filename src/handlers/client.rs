@@ -1,7 +1,12 @@
 use actix_web::{error, web, Result, Responder, HttpResponse, get};
 use mysql::{prelude::Queryable, Pool};
 
-use crate::{dto::{Client, ApiOk, ApiError}, request::client_filter::{ClientFilter, ClientUpdate, Operator}};
+use crate::{
+    dto::{Client, ApiOk, ApiError}, 
+    request::{Operator},
+    request::client_filter::{ClientFilter, ClientUpdate},
+    utils::push_if_not_none,
+};
 
 const SELECT_CLIENTS: &str = "SELECT id, name from client";
 const INSERT_CLIENT: &str = "INSERT INTO client(name) VALUES(?)";
@@ -81,10 +86,7 @@ pub async fn update_client(pool: web::Data<Pool>, client: web::Json<ClientUpdate
         return Ok(HttpResponse::BadRequest().json(ApiError{ message: "You need to insert the id".to_string(), status_code: 400, error: "Invalid data to update".to_string() }));
     }
     let mut query = String::from("");
-    if client_update.name != None {
-        let fmt = format!("name='{}'", client_update.name.unwrap());
-        query.push_str(fmt.as_str());
-    }
+    push_if_not_none(client_update.name, "name", &mut query);
     let mut conn = pool.get_conn().unwrap();
     let orig_query = UPDATE_CLIENT.replace("{}", query.as_str());
     conn.exec_drop(orig_query, (client_update.id.unwrap(),)).unwrap();
