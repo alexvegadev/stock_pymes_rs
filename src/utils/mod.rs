@@ -1,5 +1,7 @@
 use std::fmt::{Debug, Display};
 
+pub mod query;
+
 use crate::request::Operator;
 
 fn comma_set(qry: String) -> String {

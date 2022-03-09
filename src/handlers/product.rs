@@ -2,12 +2,16 @@ use actix_web::{error, web, HttpResponse, Responder, Result};
 use mysql::{prelude::Queryable, Pool};
 
 use crate::{
-    dto::{ApiError, Product, ApiOk},
+    dto::{ApiError, ApiOk, Product},
     request::{update_filters::ProductFilter, Operator},
-    utils::{push_if_not_none, push_where_filter},
+    utils::{
+        push_if_not_none, push_where_filter,
+        query::{Query, QueryBuilder, QueryTrait},
+    },
 };
 
-const SELECT_PRODUCT: &str = "SELECT id, bar_code, name, category, image, base_price, real_price, quantity from product";
+const SELECT_PRODUCT: &str =
+    "SELECT id, bar_code, name, category, image, base_price, real_price, quantity from product";
 const INSERT_PRODUCT: &str = "INSERT INTO product(bar_code, name, category, image, base_price, real_price, quantity) VALUES(?, ?, ?, ?, ?, ?, ?)";
 const DELETE_PRODUCT: &str = "DELETE FROM product where id=?";
 const UPDATE_PRODUCT: &str = "UPDATE product SET {} where id=?";
@@ -60,7 +64,10 @@ pub async fn update_product(
     Ok(HttpResponse::Ok().json(product.0))
 }
 
-pub async fn create_product(pool: web::Data<Pool>, product: web::Json<Product>) -> Result<impl Responder> {
+pub async fn create_product(
+    pool: web::Data<Pool>,
+    product: web::Json<Product>,
+) -> Result<impl Responder> {
     let mut conn = pool.get_conn().unwrap();
     let mut new_product = product.0.clone();
     let bar_code = &product.bar_code;
@@ -70,35 +77,56 @@ pub async fn create_product(pool: web::Data<Pool>, product: web::Json<Product>) 
     let base_price = &product.base_price;
     let real_price = &product.real_price;
     let quantity = &product.quantity;
-    conn.exec_drop(INSERT_PRODUCT, (bar_code, name, category, image, base_price, real_price, quantity, )).unwrap();
+    conn.exec_drop(
+        INSERT_PRODUCT,
+        (
+            bar_code, name, category, image, base_price, real_price, quantity,
+        ),
+    )
+    .unwrap();
     let insert_id = conn.last_insert_id();
     new_product.id = Some(insert_id);
     Ok(web::Json(new_product))
 }
 
-pub async fn remove_product(pool: web::Data<Pool>, paths: web::Path<(u64,)>) -> Result<HttpResponse, error::Error> {
+pub async fn remove_product(
+    pool: web::Data<Pool>,
+    paths: web::Path<(u64,)>,
+) -> Result<HttpResponse, error::Error> {
     let mut conn = pool.get_conn().unwrap();
     let id = paths.0;
     let res = conn.exec_drop(DELETE_PRODUCT, (id,));
     if res.is_ok() {
         res.unwrap();
-        return Ok(HttpResponse::Created().json(ApiOk{ message: "product removed!".to_owned() }));
+        return Ok(HttpResponse::Created().json(ApiOk {
+            message: "product removed!".to_owned(),
+        }));
     }
-    Ok(HttpResponse::NotFound().json(ApiError{ status_code: 404, error: "Entity not found!".to_string(), message: "product not found!".to_owned() }))
+    Ok(HttpResponse::NotFound().json(ApiError {
+        status_code: 404,
+        error: "Entity not found!".to_string(),
+        message: "product not found!".to_owned(),
+    }))
 }
 
-
-pub async fn find_products_by_filter(pool: web::Data<Pool>, web::Query(qry): web::Query<ProductFilter>) -> Result<impl Responder> {
+pub async fn find_products_by_filter(
+    pool: web::Data<Pool>,
+    web::Query(qry): web::Query<ProductFilter>,
+) -> Result<impl Responder> {
     let mut query = SELECT_PRODUCT.to_owned();
     let mut cond = String::new();
-    let op = if qry.operator == None {Operator::AND} else {qry.operator.unwrap()};
-    
+    let op = if qry.operator == None {
+        Operator::AND
+    } else {
+        qry.operator.unwrap()
+    };
+
     push_where_filter(qry.id, "id", &mut cond, op);
     push_where_filter(qry.name, "name", &mut cond, op);
     push_where_filter(qry.category, "category", &mut cond, op);
     println!("{}", cond);
-    if cond.len() > 0{
-        query +=  " where ";
+    if cond.len() > 0 {
+        query += " where ";
         query += cond.as_str();
     }
     let mut conn = pool.get_conn().unwrap();
@@ -117,5 +145,19 @@ pub async fn find_products_by_filter(pool: web::Data<Pool>, web::Query(qry): web
             },
         )
         .unwrap();
+    let mut builder = QueryBuilder::new();
+    builder.add(Query {
+        name: "name".to_string(),
+        logic_op: "AND".to_string(),
+        comparison_op: crate::utils::query::ComparisonOperator::In,
+        value: "alex,gabriel,gonzalo".to_string(),
+    });
+    builder.add(Query {
+        name: "lastname".to_string(),
+        logic_op: "AND".to_string(),
+        comparison_op: crate::utils::query::ComparisonOperator::Equals,
+        value: "peiretti".to_string(),
+    });
+    println!("{}", builder.build());
     Ok(web::Json(products))
 }
