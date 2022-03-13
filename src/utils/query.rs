@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct QueryBuilder {
-    queries: Vec<Query>
+    filters: Vec<Query>
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -24,10 +24,10 @@ pub enum ComparisonOperator {
 
 impl QueryBuilder {
     pub fn new() -> Self {
-        return Self{queries: vec!()}
+        return Self{filters: vec!()}
     }
     pub fn from(qry: Vec<Query>) -> Self {
-        return Self{queries: qry}
+        return Self{filters: qry}
     }
 }
 
@@ -35,7 +35,7 @@ impl QueryTrait<'_> for QueryBuilder {
 
     fn build(&self) -> String {
         let mut query: String = String::new();
-        for i in &self.queries {
+        for i in &self.filters {
             if query.len() > 0 {
                 query.push_str(format!(" {} ", i.logic_op.as_str()).as_str());
             }
@@ -66,7 +66,7 @@ impl QueryTrait<'_> for QueryBuilder {
     }
 
     fn add(self: &mut QueryBuilder, field: Query) {
-        self.queries.push(field);
+        self.filters.push(field);
     }
 
     

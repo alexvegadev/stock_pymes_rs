@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Local};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Client {
@@ -21,10 +20,11 @@ pub struct Product {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Sale {
-    pub id: Option<i64>,
+    pub id: Option<u64>,
     pub client_id: Option<i64>,
     pub product_id: u64,
-    pub date_purchase: DateTime<Local>
+    pub quantity: u32,
+    pub date_purchase: Option<mysql_common::chrono::NaiveDateTime>
 }
 
 

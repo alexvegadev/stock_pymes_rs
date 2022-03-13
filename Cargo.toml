@@ -6,9 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0.136", features = ["derive"] }
 serde_json = "1.0.79"
 actix-web = "4.0.1"
-dotenv = "0.15.0"
-chrono = { version = "0.4", features = ["serde"]}
 mysql = "22.1.0"
+mysql_common = { version = "0.28.2", features = ["chrono"] }
+yaml-rust = "0.4.5"
+env_logger = "0.9.0"

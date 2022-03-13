@@ -5,8 +5,7 @@ use crate::{
     dto::{ApiError, ApiOk, Product},
     request::{update_filters::ProductFilter, Operator},
     utils::{
-        push_if_not_none, push_where_filter,
-        query::{Query, QueryBuilder, QueryTrait},
+        push_if_not_none, push_where_filter
     },
 };
 
@@ -145,19 +144,5 @@ pub async fn find_products_by_filter(
             },
         )
         .unwrap();
-    let mut builder = QueryBuilder::new();
-    builder.add(Query {
-        name: "name".to_string(),
-        logic_op: "AND".to_string(),
-        comparison_op: crate::utils::query::ComparisonOperator::In,
-        value: "alex,gabriel,gonzalo".to_string(),
-    });
-    builder.add(Query {
-        name: "lastname".to_string(),
-        logic_op: "AND".to_string(),
-        comparison_op: crate::utils::query::ComparisonOperator::Equals,
-        value: "peiretti".to_string(),
-    });
-    println!("{}", builder.build());
     Ok(web::Json(products))
 }

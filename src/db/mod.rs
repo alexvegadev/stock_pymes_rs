@@ -9,10 +9,8 @@ pub struct DatabaseConfig {
 }
 
 impl DatabaseConfig {
-    pub fn new() -> Self {
-        dotenv::dotenv().ok();
-        let url = dotenv::var("DATABASE_URL").unwrap_or(String::from(""));
-        Self { url }
+    pub fn new(url: &str) -> Self {
+        Self { url: url.to_string() }
     }
 
     pub fn get_pool(&self) -> Pool {
