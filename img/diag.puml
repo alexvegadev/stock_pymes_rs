@@ -1,0 +1,126 @@
+@startuml StockPymesAPI
+title StockPymes API
+
+actor Admin as Person
+participant StockPymes
+database DB
+
+
+Person -> StockPymes: /clients GET:
+activate Person
+StockPymes -> DB :  gets clients
+DB --> StockPymes : Return clients
+StockPymes -> Person: Return clients - Status 200
+deactivate Person
+
+Person -> StockPymes: /client POST:
+activate Person
+StockPymes -> DB : saves client
+DB --> StockPymes : Save client
+StockPymes -> Person: Save client - Status 201
+deactivate Person
+
+
+Person -> StockPymes: /client PUT:
+activate Person
+StockPymes -> DB :  update client
+DB --> StockPymes : updates client
+StockPymes -> Person: updates client - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /clients/id DELETE:
+activate Person
+StockPymes -> DB :  removes client by id
+DB --> StockPymes : remove client by id
+StockPymes -> Person: remove client by id - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /clients/find GET:
+activate Person
+StockPymes -> DB :  gets clients by filters
+DB --> StockPymes : get clients by filters
+StockPymes -> Person: get clients by filters- Status 200
+deactivate Person
+
+' PRODUCTS
+Person -> StockPymes: /products GET:
+activate Person
+StockPymes -> DB :  gets products
+DB --> StockPymes : Return products
+StockPymes -> Person: Return products - Status 200
+deactivate Person
+
+Person -> StockPymes: /product POST:
+activate Person
+StockPymes -> DB : saves product
+DB --> StockPymes : Save product
+StockPymes -> Person: Save product - Status 201
+deactivate Person
+
+
+Person -> StockPymes: /product PUT:
+activate Person
+StockPymes -> DB :  update product
+DB --> StockPymes : updates product
+StockPymes -> Person: updates product - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /products/id DELETE:
+activate Person
+StockPymes -> DB :  removes product by id
+DB --> StockPymes : remove product by id
+StockPymes -> Person: remove product by id - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /products/find GET:
+activate Person
+StockPymes -> DB :  gets products by filters
+DB --> StockPymes : get products by filters
+StockPymes -> Person: get products by filters- Status 200
+deactivate Person
+
+' SALE
+
+Person -> StockPymes: /sales GET:
+activate Person
+StockPymes -> DB :  gets sales
+DB --> StockPymes : Return sales
+StockPymes -> Person: Return sales - Status 200
+deactivate Person
+
+Person -> StockPymes: /sale POST:
+activate Person
+StockPymes -> DB : saves sale
+DB --> StockPymes : Save sale
+StockPymes -> Person: Save sale - Status 201
+deactivate Person
+
+
+Person -> StockPymes: /sale PUT:
+activate Person
+StockPymes -> DB :  update sale
+DB --> StockPymes : updates sale
+StockPymes -> Person: updates sale - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /sales/id DELETE:
+activate Person
+StockPymes -> DB :  removes sale by id
+DB --> StockPymes : remove sale by id
+StockPymes -> Person: remove sale by id - Status 200
+deactivate Person
+
+
+Person -> StockPymes: /sales/find GET:
+activate Person
+StockPymes -> DB :  gets sales by filters
+DB --> StockPymes : get sales by filters
+StockPymes -> Person: get sales by filters- Status 200
+deactivate Person
+
+@enduml

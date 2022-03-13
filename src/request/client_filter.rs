@@ -1,5 +1,7 @@
 use serde::{Serialize, Deserialize};
 
+use super::Operator;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ClientFilter {
     pub id: Option<u32>,
@@ -11,10 +13,4 @@ pub struct ClientFilter {
 pub struct ClientUpdate {
     pub id: Option<u32>,
     pub name: Option<String>
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-pub enum Operator {
-    AND,
-    OR
 }
