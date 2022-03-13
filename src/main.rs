@@ -23,11 +23,17 @@ async fn main() -> std::io::Result<()> {
     let db_url = conf.get_conf("config")["DATABASE_URL"].as_str().unwrap();
     let install_db: bool = conf.get_conf("config")["AUTO_INSTALL_DB"].as_bool().unwrap();
     let host: &str = conf.get_conf("config")["HOST"].as_str().unwrap();
-    let port: i64 = conf.get_conf("config")["PORT"].as_i64().unwrap();
+    let port_res = conf.get_conf("config")["PORT"].as_i64();
     let db_config : db::DatabaseConfig = db::DatabaseConfig::new(db_url);
     if install_db {
         println!("Installing DB...");
         db_config.install_db();
+    }
+    let port: u16;
+    if port_res == None {
+        port = std::env::var("PORT").unwrap().parse::<u16>().unwrap();
+    } else {
+        port = port_res.unwrap() as u16;
     }
     let pool = web::Data::new(db_config.get_pool());
     HttpServer::new(move || {
@@ -38,7 +44,7 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::setup_routes)
             //PRODUCTS
     })
-    .bind((host, (port as u16)))?
+    .bind((host, port))?
     .run()
     .await
 }
