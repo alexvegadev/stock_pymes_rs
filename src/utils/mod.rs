@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Display};
 
 pub mod query;
+pub mod env;
 
 use crate::request::Operator;
 

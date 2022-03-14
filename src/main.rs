@@ -1,5 +1,6 @@
 use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 use config::config::Config;
+use log::info;
 
 mod dto;
 mod handlers;
@@ -17,21 +18,21 @@ async fn ping() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
-    let conf = Config::new("./config/config.yaml");
-    let db_url = conf.get_conf("config")["DATABASE_URL"].as_str().unwrap();
-    let install_db: bool = conf.get_conf("config")["AUTO_INSTALL_DB"].as_bool().unwrap();
-    let host: &str = conf.get_conf("config")["HOST"].as_str().unwrap();
+    let conf = Config::new("./config/");
+    let db_url: &str = conf.get_str("config", "DATABASE_URL");
+    let install_db: bool = conf.get_bool("config", "AUTO_INSTALL_DB");
+    let host: &str = conf.get_str("config", "HOST");
     let port_res = conf.get_conf("config")["PORT"].as_i64();
     let db_config : db::DatabaseConfig = db::DatabaseConfig::new(db_url);
     if install_db {
-        println!("Installing DB...");
+        info!("Installing DB...");
         db_config.install_db();
     }
     let port: u16;
     if port_res == None {
-        port = std::env::var("PORT").unwrap().parse::<u16>().unwrap();
+        port = std::env::var("PORT").unwrap().parse::<u16>().unwrap_or(8080);
     } else {
         port = port_res.unwrap() as u16;
     }
