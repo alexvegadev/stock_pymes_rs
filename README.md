@@ -11,9 +11,9 @@ API Restful to make stock control, made with Rust and MySQL.
 # Libraries used:
 - Actix Web
 - Serde & Serde JSON
-- dotenv
 - mysql_common (dates)
 - yaml-rust
+- loggers
 
 # Diagram:
 [![Diagram](/img/StockPymesAPI.png)]

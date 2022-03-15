@@ -5,7 +5,7 @@ use crate::{
     dto::{Client, ApiOk, ApiError}, 
     request::{Operator},
     request::client_filter::{ClientFilter, ClientUpdate},
-    utils::push_if_not_none,
+    utils::{push_if_not_none, query::{PageBuilder, PageResult}},
 };
 
 const SELECT_CLIENTS: &str = "SELECT id, name from client";
@@ -36,7 +36,7 @@ async fn get_client_by_id(pool: web::Data<Pool>, paths: web::Path<(u64,)>) -> Re
     Ok(HttpResponse::NotFound().json(ApiError{ status_code: 404, error: "Client not found".to_string(), message: "The client doesn't exists".to_string() }))
 }
 
-pub async fn find_clients_by_filter(pool: web::Data<Pool>, web::Query(qry): web::Query<ClientFilter>) -> Result<impl Responder> {
+pub async fn find_clients_by_filter(pool: web::Data<Pool>, web::Query(qry): web::Query<ClientFilter>, web::Query(pager): web::Query<PageBuilder>) -> Result<impl Responder> {
     let mut query = SELECT_CLIENTS.to_owned();
     if qry.id != None || qry.name != None {
         query +=  " where ";
@@ -57,10 +57,11 @@ pub async fn find_clients_by_filter(pool: web::Data<Pool>, web::Query(qry): web:
     }
     println!("{}", query);
     let mut conn = pool.get_conn().unwrap();
-    let clients = conn.query_map(query, |(id, name)| {
+    let clients = conn.query_map(pager.build(query.as_str()), |(id, name)| {
         Client{id: id, name: name}
     }).unwrap();
-    Ok(web::Json(clients))
+    let pages = pager.calculate_count(&mut conn, "client");
+    Ok(web::Json(PageResult{page_count: pages, pager, results: clients}))
 }
 
 pub async fn create_client(pool: web::Data<Pool>, client: web::Json<Client>) -> Result<impl Responder> {
