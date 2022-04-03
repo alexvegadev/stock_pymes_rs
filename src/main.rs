@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
     let pool = web::Data::new(db_config.get_pool());
     HttpServer::new(move || {
         App::new()
+            .default_service(web::to(|| HttpResponse::NotFound()))
             .app_data(pool.clone())
             .wrap(middleware::Logger::default())
             .service(ping)

@@ -1,4 +1,4 @@
-use mysql::{prelude::Queryable, Pool, PooledConn};
+use mysql::{prelude::Queryable, PooledConn};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
