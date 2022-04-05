@@ -9,6 +9,7 @@ mod request;
 mod routes;
 mod utils;
 mod config;
+mod secret;
 
 
 #[get("/ping")]
