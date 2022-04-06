@@ -2,7 +2,6 @@ version: '3.0'
 
 services:
   db:
-    network_mode: "host"
     container_name: mysql
     image: mysql:latest
     environment:
@@ -21,7 +20,6 @@ services:
       - backend
 
   api:
-    network_mode: "host"
     image: alexvegadev/stock_pymes_rs:2.0
     container_name: api_sp
     restart: always
