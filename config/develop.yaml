@@ -1,5 +1,5 @@
 config:
-  DATABASE_URL: mysql://root:root@localhost:3306/stockpymes
+  DATABASE_URL: mysql://root:root@0.0.0.0:3306/stockpymes
   AUTO_INSTALL_DB: true
   HOST: 0.0.0.0
   PORT: 8080

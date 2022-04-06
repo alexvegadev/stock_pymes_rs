@@ -1,6 +1,7 @@
 use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 use config::config::Config;
 use log::info;
+use secret::get_secret;
 
 mod dto;
 mod handlers;
@@ -22,7 +23,9 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
     let conf = Config::new("./config/");
-    let db_url: &str = conf.get_str("config", "DATABASE_URL");
+    let conf_db_url = conf.get_str("config", "DATABASE_URL");
+    let db_url_raw= get_secret("DATABASE_URL", conf_db_url);
+    let db_url: &str = db_url_raw.as_str();
     let install_db: bool = conf.get_bool("config", "AUTO_INSTALL_DB");
     let host: &str = conf.get_str("config", "HOST");
     let port_res = conf.get_conf("config")["PORT"].as_i64();
