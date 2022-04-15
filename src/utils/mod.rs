@@ -52,7 +52,7 @@ where
         let val_str = format!("{}", t.unwrap());
         let op = format!("{:#?}", operator);
         
-        if val_str.chars().nth(0).unwrap().is_numeric() {
+        if val_str.chars().nth(0).unwrap_or('l').is_numeric() {
             val_fmt = val_fmt.replace("%val%", &val_str);
         } else {
             val_fmt = val_fmt.replace("%val%", format!("'{}'", val_str).as_str());

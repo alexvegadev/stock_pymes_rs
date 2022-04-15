@@ -11,6 +11,7 @@ mod routes;
 mod utils;
 mod config;
 mod secret;
+mod usecase;
 
 
 #[get("/ping")]

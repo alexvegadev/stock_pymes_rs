@@ -2,25 +2,24 @@ version: '3.0'
 
 services:
   db:
-    container_name: mysql
     image: mysql:latest
     environment:
-      MYSQL_DATABASE: 'stockpymes'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: 'root'
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_ROOT_HOST: '%'
+      - MYSQL_DATABASE=stockpymes
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_USER=alex
+      - MYSQL_PASSWORD=example123
     ports:
       - '3306:3306'
     expose:
       - '3306'
     volumes:
-      - my-db:/var/lib/mysql
+      - /var/lib/mysql
     networks:
       - backend
 
   api:
-    image: alexvegadev/stock_pymes_rs:2.0
+    image: stock_pymes_rs_api:latest
     container_name: api_sp
     restart: always
     depends_on:
@@ -39,6 +38,3 @@ services:
 networks:
   backend:
     driver: "bridge"
-
-volumes:
-  my-db:

@@ -5,7 +5,7 @@ use crate::{
     dto::{ApiError, ApiOk, Product},
     request::{update_filters::ProductFilter, Operator},
     utils::{
-        push_if_not_none, push_where_filter
+        push_if_not_none, push_where_filter, query::{PageBuilder, PageResult}
     },
 };
 
@@ -110,6 +110,7 @@ pub async fn remove_product(
 
 pub async fn find_products_by_filter(
     pool: web::Data<Pool>,
+    web::Query(pager): web::Query<PageBuilder>,
     web::Query(qry): web::Query<ProductFilter>,
 ) -> Result<impl Responder> {
     let mut query = SELECT_PRODUCT.to_owned();
@@ -129,9 +130,10 @@ pub async fn find_products_by_filter(
         query += cond.as_str();
     }
     let mut conn = pool.get_conn().unwrap();
+
     let products = conn
         .query_map(
-            SELECT_PRODUCT,
+            pager.build(query.as_str()),
             |(id, bar_code, name, category, image, base_price, real_price, quantity)| Product {
                 id,
                 bar_code,
@@ -144,5 +146,6 @@ pub async fn find_products_by_filter(
             },
         )
         .unwrap();
-    Ok(web::Json(products))
+    let pages = pager.calculate_count(&mut conn, "product");
+    Ok(web::Json(PageResult{page_count: pages, pager, results: products}))
 }

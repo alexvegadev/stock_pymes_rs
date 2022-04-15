@@ -27,4 +27,7 @@ pub fn setup_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/sale", web::post().to(handlers::sale::create_sale));
     cfg.route("/sale", web::delete().to(handlers::sale::remove_sale));
     cfg.route("/sale", web::get().to(handlers::sale::get_sales));
+
+    //OPERATION
+    cfg.route("/operation", web::post().to(handlers::operation::process_operation));
 }
